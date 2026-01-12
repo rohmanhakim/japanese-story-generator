@@ -1,0 +1,10 @@
+sk-ant-your-api-key-here
+
+# Instructions:
+# 1. Replace the line above with your actual Anthropic API key
+# 2. Save this file
+# 3. Run: python japanese_story_gen.py your_vocab.txt
+#
+# Get your API key from: https://console.anthropic.com/settings/keys
+#
+# Keep this file secure and don't share it!

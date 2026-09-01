@@ -1,205 +1,144 @@
-# Vocabulary Strictness Modes
+# Vocabulary Constraint Modes
 
-The script supports two modes for vocabulary constraint handling.
-
-## Default Mode: Flexible (90%+ vocabulary adherence)
-
-**Recommended for most users.**
-
-```bash
-python japanese_story_gen.py My_Japanese_Vocabulary.txt
-```
-
-### What it does:
-- ✅ Uses 90%+ words from your vocabulary list
-- ✅ Allows minimal common functional words (数, 時, 所, 事, 人, etc.)
-- ✅ Results in natural, grammatically correct stories
-- ✅ Better learning experience - feels like real Japanese
-
-### Example output:
-```
-冬の寒い日、私は外に出ました。体が冷たくなって、
-手袋と帽子をつけました。神社まで歩いて行きました。
-そこで暖かいお茶を飲みながら、家族と一緒に
-新年の行事に参加しました。
-```
-*May include: 私 (I), 行きました (went) if not in your vocab, but story flows naturally*
+This project supports two modes for vocabulary constraints when generating stories.
 
 ---
 
-## Strict Mode: 100% vocabulary adherence
+## Strict Mode
 
-**For purists who want ZERO new words.**
+Use ONLY the vocabulary words provided. No new words allowed.
 
+### Usage
 ```bash
-python japanese_story_gen.py My_Japanese_Vocabulary.txt --strict-vocab
+uv run jp-story vocab.txt --strict
 ```
 
-### What it does:
-- ✅ Uses ONLY words from your vocabulary list
-- ✅ No exceptions (except particles)
-- ❌ May result in awkward/unnatural sentences
-- ❌ Story quality may suffer
+### In Code
+```python
+generator = StoryGenerator(api_key)
+story = generator.generate(
+    vocab_words,
+    strict_vocab=True  # Strict mode
+)
+```
 
-### Example output:
+### When to Use
+- Beginner learners who need controlled vocabulary
+- Drilling specific word sets
+- Testing vocabulary mastery
+
+### Trade-offs
+- ✅ Guarantees only known words appear
+- ✅ Good for learning reinforcement
+- ⚠️ Stories may sound slightly unnatural
+- ⚠️ Limited expressiveness
+
+---
+
+## Flexible Mode (Default)
+
+Primarily uses provided vocabulary, but may add common words for natural flow.
+
+### Usage
+```bash
+uv run jp-story vocab.txt
+# or
+uv run jp-story vocab.txt --no-strict
 ```
-冬。寒い。体、冷たい。手袋。帽子。神社。行事。
-暖かい料理、食べる。元気。
+
+### In Code
+```python
+generator = StoryGenerator(api_key)
+story = generator.generate(
+    vocab_words,
+    strict_vocab=False  # Flexible mode (default)
+)
 ```
-*Choppy, telegraphic, but technically uses only your words*
+
+### When to Use
+- Intermediate/advanced learners
+- Reading practice with natural Japanese
+- When story quality matters more than strict control
+
+### Trade-offs
+- ✅ More natural stories
+- ✅ Better reading experience
+- ⚠️ May contain some unknown words (~5-10%)
 
 ---
 
 ## Comparison
 
-| Aspect | Default (Flexible) | Strict Mode |
-|--------|-------------------|-------------|
-| **Vocabulary adherence** | 90-95% | 99-100% |
-| **Story naturalness** | ⭐⭐⭐⭐⭐ Natural | ⭐⭐ Choppy |
-| **Grammar correctness** | ⭐⭐⭐⭐⭐ Correct | ⭐⭐⭐ Sometimes awkward |
-| **Learning value** | ⭐⭐⭐⭐⭐ High | ⭐⭐⭐ Medium |
-| **Reading enjoyment** | ⭐⭐⭐⭐⭐ Enjoyable | ⭐⭐ Functional |
-| **New words introduced** | 0-3 common words | 0 |
+| Feature | Strict | Flexible |
+|---------|--------|----------|
+| New words allowed | ❌ No | ⚠️ Minimal |
+| Story naturalness | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
+| Vocabulary control | 100% | ~90-95% |
+| Best for | Beginners | All levels |
 
 ---
 
-## What "Minimal common words" means in Flexible mode:
+## Examples
 
-The flexible mode may add these types of words **only when necessary**:
+### Strict Mode Output
+```text
+Input vocabulary: 食べる, 飲む, 水, 学校, 先生
 
-### Function words (structure):
-- 事 (こと) - thing, fact
-- 時 (とき) - time, when
-- 所 (ところ) - place
-- 人 (ひと) - person
-- 物 (もの) - thing
-
-### Common verbs (if missing):
-- する - to do
-- 行く - to go
-- 来る - to come
-- ある/いる - to exist
-
-### Pronouns (if missing):
-- 私 - I
-- これ/それ/あれ - this/that
-
-### Temporal/quantifiers:
-- 数 - number
-- 今 - now
-- 後 - after
-
-**Important:** Even in flexible mode, the story will use 90%+ of YOUR words. New words are rare and only used when absolutely needed.
-
----
-
-## Real Example Comparison
-
-**Your vocabulary:** 冬, 寒い, 暖かい, 神社, 帽子, 手袋, 雪, 料理, 食べる, 体
-
-### Flexible Mode Story (Default):
-```
-冬の寒い日のことです。朝、外に出る時、体が冷たく
-なりました。帽子と手袋をつけて、神社へ行きました。
-雪が降っていて、とても寒かったです。帰りに暖かい
-料理を食べて、元気になりました。
+Output:
+私は学校に行きます。先生が水を飲みます。
+私はりんごを食べます。（りんご is NOT allowed - violation!）
 ```
 
-**New words used:** 
-- 日 (day) - necessary for "cold day"
-- 朝 (morning) - time context
-- 出る (to go out) - natural flow
-- 時 (when) - conjunction
-- 行く (to go) - verb of motion
-- とても (very) - emphasis
+### Flexible Mode Output
+```text
+Input vocabulary: 食べる, 飲む, 水, 学校, 先生
 
-**Your vocabulary words:** 冬, 寒い, 体, 帽子, 手袋, 神社, 雪, 暖かい, 料理, 食べる (10/10 = 100% used!)
-
-**Total vocabulary:** 10 yours + 6 functional = 16 words → 62.5% yours, but ALL your words practiced!
-
----
-
-### Strict Mode Story:
-```
-冬。寒い。体、冷たい。帽子。手袋。神社。雪。
-料理、食べる。暖かい。
+Output:
+私は学校に行って、先生とお昼ご飯を食べました。
+水を飲みながら、りんごも食べました。
+（りんご is added for natural flow - acceptable）
 ```
 
-**New words used:** 0
-
-**Your vocabulary words:** All used but disconnected
-
-**Story quality:** Choppy, like a word list
-
 ---
 
-## Recommendation
+## Controlling Vocabulary
 
-### Use Flexible Mode (default) when:
-- ✅ You want to learn Japanese naturally
-- ✅ You want enjoyable reading practice
-- ✅ Your goal is context-based learning
-- ✅ You have 50+ vocabulary words
+### Add more words to Anki deck
+The more words you have, the more natural strict mode stories become.
 
-### Use Strict Mode when:
-- ✅ You have very limited vocabulary (<20 words)
-- ✅ You want to memorize ONLY specific words
-- ✅ You're okay with choppy/unnatural text
-- ✅ You're a completionist (0 new words = goal)
-
----
-
-## Usage Examples
-
-### Flexible mode (default):
+### Use themes
+Guide story content to match your vocabulary:
 ```bash
-# Natural stories, 90%+ your vocabulary
-python japanese_story_gen.py vocab.txt --theme "冬の日"
+uv run jp-story vocab.txt --strict --theme "at the restaurant"
 ```
 
-### Strict mode:
+### Adjust max length
+Shorter stories are easier to constrain:
 ```bash
-# Only your words, may be choppy
-python japanese_story_gen.py vocab.txt --theme "冬の日" --strict-vocab
-```
-
-### Compare both:
-```bash
-# Generate flexible
-python japanese_story_gen.py vocab.txt --output story_flexible.txt
-
-# Generate strict
-python japanese_story_gen.py vocab.txt --output story_strict.txt --strict-vocab
-
-# Compare the results!
+uv run jp-story vocab.txt --strict --max-length 200
 ```
 
 ---
 
-## My Recommendation
+## Vocabulary Violations
 
-**Use the default flexible mode.**
+When using `--verify`, the tool shows vocabulary violations:
 
-Why? Because:
-1. You learn vocabulary IN CONTEXT (most effective)
-2. Stories are natural and enjoyable to read
-3. You still practice 100% of your known words
-4. The 5-10% "new" words are usually ultra-common ones you need anyway
-5. Real Japanese uses these functional words constantly
+```
+Violations: 5
+  部屋 (ホウヤ)    # Word not in vocabulary
+  本棚 (ホンダナ)  # Word not in vocabulary
+  ...
+```
 
-**Think of it like this:**
-- Strict mode = Flash cards in sentence form
-- Flexible mode = Natural Japanese with your vocabulary focus
-
-The flexible mode is closer to how textbooks work - they introduce new vocabulary in context while using some familiar "glue" words.
+Use this to understand how well the model adhered to your vocabulary list.
 
 ---
 
-## Technical Note
+## Tips
 
-- **Claude API:** Handles both modes well
-- **Local LLMs:** May struggle even in strict mode (will introduce ~10-20% new words anyway)
-  - Larger models (Llama 3 8B, Gemma 2 3B) handle it better
-  - Smaller models (GPT-2 Medium) struggle more
-
-If using local LLMs, the difference between strict and flexible modes is less noticeable.
+1. **Start with flexible mode** to see natural stories
+2. **Switch to strict mode** for vocabulary drilling
+3. **Build vocabulary gradually** - larger word lists = better strict stories
+4. **Use verification** to check adherence
+5. **Combine with themes** to focus on specific vocabulary areas

@@ -1,245 +1,215 @@
 # Troubleshooting Guide
 
-## Error: "Insufficient credits" or "credit balance is too low"
+## Error: "API key required"
 
-**What happened:** Your Anthropic account doesn't have enough credits to make API calls.
+**What happened:** No API key was found.
 
 **Solutions:**
 
-### Option 1: Add credits to your Anthropic account
-1. Go to: https://console.anthropic.com/settings/billing
-2. Add credits ($5 minimum)
-3. Try running the script again
-
-### Option 2: Use local LLM instead (FREE)
+### Option 1: Set environment variable
 ```bash
-# Install dependencies
-uv pip install torch transformers accelerate
-
-# Run with local model (no API needed)
-uv run --with torch --with transformers --with accelerate \
-  python japanese_story_gen.py My_Japanese_Vocabulary.txt --mode local
+export OPENROUTER_API_KEY="sk-or-v1-your-key"
 ```
 
-**Recommended local models:**
-- `rinna/japanese-gpt2-medium` (default, fastest, ~500MB)
-- `rinna/japanese-gpt-1b` (better quality, ~2.6GB, recommended)
-
-**Example with better model:**
+### Option 2: Use CLI flag
 ```bash
-uv run --with torch --with transformers --with accelerate \
-  python japanese_story_gen.py My_Japanese_Vocabulary.txt \
-  --mode local \
-  --model rinna/japanese-gpt-1b
+uv run jp-story vocab.txt --api-key "sk-or-v1-your-key"
 ```
+
+### Option 3: Get API key
+1. Visit: https://openrouter.ai/keys
+2. Create account and get key
+3. Set as above
 
 ---
 
-## Error: "Invalid API key" or "Authentication failed"
+## Error: "Rate limit exceeded"
 
-**Problem:** Your API key is incorrect or expired.
+**What happened:** Free model rate limit reached.
 
-**Solution:**
-1. Get a new API key: https://console.anthropic.com/settings/keys
-2. Update your `anthropic-api-key.txt` file:
+**Solutions:**
+
+1. **Wait and retry** - Rate limits reset after 1-2 minutes
+
+2. **Use different model**
    ```bash
-   echo "sk-ant-your-new-key-here" > anthropic-api-key.txt
+   uv run jp-story vocab.txt --model "openai/gpt-4o-mini"
    ```
-3. Make sure the key starts with `sk-ant-`
+
+3. **Add your own API key** to bypass shared rate limits
+   - Go to: https://openrouter.ai/settings/integrations
+   - Add your own provider API key
 
 ---
 
-## Error: "Module not found: anthropic"
+## Error: "Invalid model" or "Model not found"
 
-**Solution with UV:**
-```bash
-uv run --with anthropic python japanese_story_gen.py My_Japanese_Vocabulary.txt
-```
-
-**Or install it:**
-```bash
-uv pip install anthropic
-# or
-pip install --user anthropic
-```
-
----
-
-## Error: "Module not found: torch" (when using local mode)
+**What happened:** The model doesn't exist or isn't available for free.
 
 **Solution:**
 ```bash
-uv pip install torch transformers accelerate
+# Check available models
+# Visit: https://openrouter.ai/models
 
-# Or use UV's --with flag:
-uv run --with torch --with transformers --with accelerate \
-  python japanese_story_gen.py vocab.txt --mode local
+# Use default (free) model
+uv run jp-story vocab.txt
+
+# Or specify a valid model
+uv run jp-story vocab.txt --model "openai/gpt-4o-mini"
 ```
 
 ---
 
-## Local mode is very slow
+## Error: "Invalid API key"
 
-**Reasons:**
-- Running on CPU (not GPU)
-- Large model size
+**What happened:** API key is incorrect.
 
-**Solutions:**
-
-### 1. Use smaller model:
-```bash
-python japanese_story_gen.py vocab.txt \
-  --mode local \
-  --model rinna/japanese-gpt2-medium  # Smallest/fastest
-```
-
-### 2. Use GPU (if you have NVIDIA GPU):
-```bash
-# Install CUDA-enabled PyTorch
-pip install torch --index-url https://download.pytorch.org/whl/cu118
-```
-
-### 3. Use Claude API instead:
-- Much faster (~5 seconds vs 2+ minutes)
-- Better quality stories
-- Only ~$0.01 per story
-
----
-
-## Stories contain words I don't know
-
-**Issue:** The model is introducing new vocabulary.
-
-**Why:** 
-- Local models (especially smaller ones) struggle with strict constraints
-- GPT-2 Medium is old (2020) and small (336M parameters)
-
-**Solutions:**
-
-### 1. Use Claude API (best constraint adherence):
-```bash
-# Add credits first, then:
-python japanese_story_gen.py vocab.txt
-```
-
-### 2. Use larger local model:
-```bash
-python japanese_story_gen.py vocab.txt \
-  --mode local \
-  --model rinna/japanese-gpt-1b  # 4x larger, better quality
-```
-
-### 3. Build your vocabulary more:
-- Add more words to your Anki deck
-- Re-export and generate again
-
----
-
-## "CUDA out of memory" error
-
-**Problem:** Model is too large for your GPU.
-
-**Solutions:**
-
-### 1. Use smaller model:
-```bash
-python japanese_story_gen.py vocab.txt \
-  --mode local \
-  --model rinna/japanese-gpt2-medium
-```
-
-### 2. Use CPU instead (slower but works):
-```bash
-# PyTorch will automatically fall back to CPU
-# Just be patient - it will take 2-5 minutes
-```
-
-### 3. Use Claude API (no GPU needed):
-```bash
-python japanese_story_gen.py vocab.txt
-```
-
----
-
-## Can't find my API key file
-
-**Make sure:**
-1. The file is named exactly `anthropic-api-key.txt`
-2. It's in the same directory as `japanese_story_gen.py`
-3. It contains just your API key (no extra spaces or newlines)
-
-**Check:**
-```bash
-# See if file exists
-ls -la anthropic-api-key.txt
-
-# View contents (be careful - this shows your key!)
-cat anthropic-api-key.txt
-```
-
-**Or specify a different location:**
-```bash
-python japanese_story_gen.py vocab.txt \
-  --api-key-file /path/to/my-key.txt
-```
-
----
-
-## Rate limit exceeded
-
-**Problem:** You're making too many requests too quickly.
-
-**Solution:** 
-Wait a minute and try again. Anthropic has rate limits to prevent abuse.
-
----
-
-## Connection error / Network issues
-
-**Possible causes:**
-- No internet connection
-- Firewall blocking requests
-- Anthropic API is down (rare)
-
-**Solutions:**
-1. Check your internet connection
-2. Try again in a few minutes
-3. Use local mode (doesn't need internet):
+**Solution:**
+1. Get correct key: https://openrouter.ai/keys
+2. Update your key:
    ```bash
-   python japanese_story_gen.py vocab.txt --mode local
+   export OPENROUTER_API_KEY="sk-or-v1-correct-key"
    ```
 
 ---
 
-## Comparison: Claude API vs Local LLM
+## Error: "Could not connect to OpenRouter"
 
-| Feature | Claude API | Local LLM |
-|---------|-----------|-----------|
-| **Cost** | ~$0.01/story | Free |
-| **Speed** | ~5 seconds | 2-10 minutes (CPU) |
-| **Quality** | ⭐⭐⭐⭐⭐ | ⭐⭐ to ⭐⭐⭐ |
-| **Constraint adherence** | Excellent | Fair to Good |
-| **Internet needed** | Yes | No (after download) |
-| **Setup difficulty** | Easy | Medium |
-| **RAM needed** | None | 2-16GB |
+**What happened:** Network connection issue.
 
-**Recommendation:**
-- **For best results:** Use Claude API
-- **For offline/free:** Use local with `rinna/japanese-gpt-1b`
-- **For fastest local:** Use `rinna/japanese-gpt2-medium`
+**Solutions:**
+1. Check internet connection
+2. Check firewall settings
+3. Try again later (OpenRouter may be temporarily down)
+
+---
+
+## Error: "Insufficient credits"
+
+**What happened:** Your account doesn't have enough credits for paid models.
+
+**Solutions:**
+1. Add credits: https://openrouter.ai/credits
+2. Use free model: `--model "google/gemma-4-26b-a4b-it:free"`
+3. Use different provider
+
+---
+
+## Import Errors
+
+### "Cannot import name 'ConjugationVerifier'"
+
+```bash
+# Reinstall package
+uv sync
+```
+
+### "ModuleNotFoundError: No module named 'japanese_story_generator'"
+
+```bash
+# Make sure you're in the project directory
+cd japanese-story-generator
+
+# Reinstall
+uv sync
+```
+
+---
+
+## Story Generation Issues
+
+### Stories contain words not in vocabulary
+
+**Cause:** Model may add some words outside vocabulary for natural flow.
+
+**Solutions:**
+1. Use strict mode:
+   ```bash
+   uv run jp-story vocab.txt --strict
+   ```
+
+2. Use better model:
+   ```bash
+   uv run jp-story vocab.txt --model "openai/gpt-4o"
+   ```
+
+3. Add more vocabulary to your Anki deck
+
+### Stories are too short/long
+
+**Adjust max length:**
+```bash
+uv run jp-story vocab.txt --max-length 300  # Shorter
+uv run jp-story vocab.txt --max-length 1000 # Longer
+```
+
+### Stories are repetitive
+
+**Cause:** Vocabulary list may be too small or similar.
+
+**Solutions:**
+1. Add more diverse vocabulary
+2. Use theme option:
+   ```bash
+   uv run jp-story vocab.txt --theme "cooking at home"
+   ```
+
+---
+
+## Anki Export Issues
+
+### "Found 0 words"
+
+**Cause:** Anki export format doesn't match expected format.
+
+**Solution:**
+1. Re-export from Anki:
+   - File → Export
+   - Format: "Notes in Plain Text (.txt)"
+   - ✅ Check "Include HTML and media references"
+
+2. Check file format:
+   ```bash
+   head -5 My_Japanese_Vocabulary.txt
+   ```
+   Should show: `word[TAB]"html content"`
+
+---
+
+## Performance Issues
+
+### Slow generation with free models
+
+**Cause:** Free models may be slower due to shared resources.
+
+**Solutions:**
+1. Use faster model:
+   ```bash
+   uv run jp-story vocab.txt --model "qwen/qwen-2-7b-instruct:free"
+   ```
+
+2. Use paid model:
+   ```bash
+   uv run jp-story vocab.txt --model "openai/gpt-4o-mini"
+   ```
 
 ---
 
 ## Still having issues?
 
-1. Make sure you're using the latest version of the script
-2. Check that your Anki export file is valid:
+1. Check the error message carefully
+2. Verify your setup:
    ```bash
-   python demo.py My_Japanese_Vocabulary.txt
-   ```
-3. Try the simplest command first:
-   ```bash
-   python japanese_story_gen.py vocab.txt --show-vocab
+   uv run jp-story --help
    ```
 
-If the demo works but story generation doesn't, the issue is with the LLM setup (API key or local model installation).
+3. Test with minimal command:
+   ```bash
+   uv run jp-story vocab.txt --show-vocab
+   ```
+
+4. Open an issue with:
+   - Full error message
+   - Command you ran
+   - Your operating system
+   - Python version (`python --version`)

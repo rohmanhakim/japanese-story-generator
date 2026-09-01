@@ -5,343 +5,203 @@
 Install UV (if you haven't already):
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
-# Or on Windows: powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
 ---
 
-## Setup Methods
+## Quick Start
 
-Choose the method that fits your workflow:
-
-### Method 1: UV Quick Run (Easiest - No Setup!)
-
-**Best for:** Trying it out, one-off usage
+### 1. Clone and Install
 
 ```bash
-# Just run - UV handles everything!
-uv run --with torch --with transformers --with accelerate --with anthropic \
-  python japanese_story_gen.py My_Japanese_Vocabulary.txt
-```
-
-**What UV does automatically:**
-- ✅ Creates temporary environment
-- ✅ Installs all dependencies
-- ✅ Runs your script
-- ✅ Cleans up after
-
-**No installation, no activation, no hassle!**
-
----
-
-### Method 2: UV Project (Recommended for Regular Use)
-
-**Best for:** Using this regularly, customization
-
-#### One-time setup:
-
-```bash
-# 1. Create UV project
-uv init japanese-story-generator
+git clone <your-repo-url>
 cd japanese-story-generator
-
-# 2. Add dependencies
-uv add torch transformers accelerate anthropic
-
-# 3. Copy your files
-cp /path/to/japanese_story_gen.py .
-cp /path/to/demo.py .
-cp /path/to/My_Japanese_Vocabulary.txt .
-
-# 4. Create API key file
-echo "sk-ant-your-api-key-here" > anthropic-api-key.txt
+uv sync
 ```
 
-#### Daily usage:
+### 2. Set API Key
 
 ```bash
-# Test vocabulary parsing
-uv run python demo.py My_Japanese_Vocabulary.txt
-
-# Generate story with Claude API
-uv run python japanese_story_gen.py My_Japanese_Vocabulary.txt
-
-# Generate with local model
-uv run python japanese_story_gen.py My_Japanese_Vocabulary.txt \
-  --mode local \
-  --model rinna/gemma-2-baku-2b
-
-# With theme
-uv run python japanese_story_gen.py My_Japanese_Vocabulary.txt \
-  --theme "冬の寒い日に料理を作りました"
+export OPENROUTER_API_KEY="sk-or-v1-your-api-key"
 ```
 
-**No need to activate/deactivate environments!**
+Get your API key at: https://openrouter.ai/keys
 
----
+### 3. Export Anki Deck
 
-### Method 3: Traditional pip + venv (If You Prefer)
+1. Open Anki → File → Export
+2. Select "Notes in Plain Text (.txt)"
+3. ✅ Check "Include HTML and media references"
+4. Save as `My_Japanese_Vocabulary.txt`
 
-**Best for:** People comfortable with traditional Python workflows
+### 4. Generate Stories
 
 ```bash
-# 1. Create virtual environment
-python3 -m venv venv
-
-# 2. Activate it
-source venv/bin/activate  # Linux/Mac
-# OR
-venv\Scripts\activate  # Windows
-
-# 3. Install dependencies
-pip install torch transformers accelerate anthropic
-
-# 4. Run your script
-python japanese_story_gen.py My_Japanese_Vocabulary.txt
-
-# 5. When done
-deactivate
+uv run jp-story My_Japanese_Vocabulary.txt
 ```
 
 ---
 
-## Quick Comparison
-
-| Method | Setup Time | Daily Usage | Best For |
-|--------|------------|-------------|----------|
-| **UV Quick Run** | 0 seconds | Simple command | Trying it out |
-| **UV Project** | 2 minutes | Simple command | Regular use ⭐ |
-| **pip + venv** | 2 minutes | Activate → Run → Deactivate | Traditional workflow |
-
----
-
-## Common UV Commands
-
-### Run with specific model:
-```bash
-uv run python japanese_story_gen.py vocab.txt \
-  --mode local \
-  --model rinna/gemma-2-baku-2b
-```
-
-### Show vocabulary before generating:
-```bash
-uv run python japanese_story_gen.py vocab.txt --show-vocab
-```
-
-### Use Claude API (with key file):
-```bash
-# Make sure anthropic-api-key.txt exists in current directory
-uv run python japanese_story_gen.py vocab.txt
-```
-
-### Test vocabulary parsing:
-```bash
-uv run python demo.py My_Japanese_Vocabulary.txt
-```
-
----
-
-## Troubleshooting UV Issues
-
-### "ModuleNotFoundError: No module named 'torch'"
-
-**Problem:** You're running `python3` directly instead of using `uv run`
-
-**Solution:**
-```bash
-# DON'T do this:
-python3 japanese_story_gen.py vocab.txt
-
-# DO this:
-uv run python japanese_story_gen.py vocab.txt
-
-# OR if you used "uv add torch", activate the environment:
-source .venv/bin/activate
-python japanese_story_gen.py vocab.txt
-```
-
----
-
-### "uv: command not found"
-
-**Solution:** Install UV first
-```bash
-curl -LsSf https://astral.sh/uv/install.sh | sh
-
-# Restart your terminal or:
-source ~/.bashrc  # or ~/.zshrc
-```
-
----
-
-### Dependencies not found even with "uv run --with"
-
-**Solution:** Make sure you list ALL dependencies:
-```bash
-uv run --with torch --with transformers --with accelerate --with anthropic \
-  python japanese_story_gen.py vocab.txt
-```
-
----
-
-## UV Project Structure (Method 2)
-
-After setup, your directory should look like:
+## Package Structure
 
 ```
 japanese-story-generator/
-├── .venv/                      # Virtual environment (auto-created)
-├── pyproject.toml              # UV project config (auto-created)
-├── japanese_story_gen.py       # Main script
-├── demo.py                     # Vocabulary parser demo
-├── anthropic-api-key.txt       # Your API key (gitignored)
-├── My_Japanese_Vocabulary.txt  # Your vocab export
-├── story.txt                   # Generated stories (gitignored)
-└── .gitignore                  # Git ignore file
+├── japanese_story_generator/
+│   ├── __init__.py           # Package exports
+│   ├── anki_parser.py        # AnkiVocabParser class
+│   ├── story_generator.py    # StoryGenerator class
+│   ├── openrouter.py         # OpenRouterClient class
+│   └── verifier.py           # ConjugationVerifier class
+├── scripts/
+│   └── generate.py           # CLI entry point
+├── pyproject.toml
+└── README.md
 ```
 
 ---
 
-## API Key Setup (All Methods)
+## Usage as CLI
 
-### Create the API key file:
 ```bash
-echo "sk-ant-your-actual-api-key-here" > anthropic-api-key.txt
-```
+# Basic usage
+uv run jp-story My_Japanese_Vocabulary.txt
 
-### Or create manually:
-1. Create file: `anthropic-api-key.txt`
-2. Paste your API key (just the key, nothing else)
-3. Save
+# With theme
+uv run jp-story My_Japanese_Vocabulary.txt --theme "at school"
 
-### Get your API key:
-Visit: https://console.anthropic.com/settings/keys
+# Strict vocabulary mode
+uv run jp-story My_Japanese_Vocabulary.txt --strict
 
----
+# Verify conjugations
+uv run jp-story My_Japanese_Vocabulary.txt --verify
 
-## First Run Examples
+# Show vocabulary list
+uv run jp-story My_Japanese_Vocabulary.txt --show-vocab
 
-### Test everything works:
-```bash
-# 1. Parse vocabulary (no API needed)
-uv run python demo.py My_Japanese_Vocabulary.txt
-
-# 2. Generate with Claude API (needs credits)
-uv run python japanese_story_gen.py My_Japanese_Vocabulary.txt
-
-# 3. Generate with local model (free, no API)
-uv run --with torch --with transformers --with accelerate \
-  python japanese_story_gen.py My_Japanese_Vocabulary.txt \
-  --mode local \
-  --model rinna/gemma-2-baku-2b
+# Use different model
+uv run jp-story My_Japanese_Vocabulary.txt --model "openai/gpt-4o-mini"
 ```
 
 ---
 
-## Migration from pip to UV
+## Usage as Python Package
 
-If you already have a pip-based setup:
+```python
+from japanese_story_generator import StoryGenerator, AnkiVocabParser
 
-```bash
-# 1. Create UV project
-uv init japanese-story-generator
-cd japanese-story-generator
+# Parse vocabulary
+parser = AnkiVocabParser("My_Japanese_Vocabulary.txt")
+vocab_words = parser.parse()
+print(f"Found {len(vocab_words)} words")
 
-# 2. Copy your files
-cp ../path/to/*.py .
-cp ../path/to/*.txt .
-
-# 3. Add dependencies (UV reads requirements.txt automatically!)
-uv add torch transformers accelerate anthropic
-
-# 4. Run with UV
-uv run python japanese_story_gen.py vocab.txt
-
-# 5. (Optional) Delete old venv
-rm -rf ../old-project/venv
+# Generate story
+generator = StoryGenerator(api_key="your-api-key")
+story = generator.generate(vocab_words, theme="daily life")
+print(story)
 ```
 
 ---
 
-## Tips for Best Experience
+## API Reference
 
-### 1. **Use UV Project for regular use:**
-```bash
-# Setup once
-uv init my-project && cd my-project
-uv add torch transformers accelerate anthropic
+### AnkiVocabParser
 
-# Use daily
-uv run python script.py
+```python
+from japanese_story_generator import AnkiVocabParser
+
+parser = AnkiVocabParser("My_Japanese_Vocabulary.txt")
+
+# Get list of words
+words = parser.parse()  # ["食べる", "飲む", "水", ...]
+
+# Get words with readings
+words_with_readings = parser.parse_with_readings()
+# [{"kanji": "食べる", "reading": "たべる"}, ...]
 ```
 
-### 2. **Create shell alias for convenience:**
-```bash
-# Add to ~/.bashrc or ~/.zshrc
-alias jpstory='uv run python japanese_story_gen.py'
+### StoryGenerator
 
-# Then just:
-jpstory My_Japanese_Vocabulary.txt --theme "冬の日"
+```python
+from japanese_story_generator import StoryGenerator
+
+generator = StoryGenerator(api_key="your-key")
+
+# Generate story
+story = generator.generate(
+    vocab_words=["食べる", "飲む", "水"],
+    theme="daily life",
+    max_length=500,
+    strict_vocab=True
+)
+
+# Generate with comprehension questions
+result = generator.generate_with_questions(
+    vocab_words=["食べる", "飲む", "水"],
+    level="n5"
+)
+# {"story": "...", "questions": "...", "vocab_used": [...]}
 ```
 
-### 3. **Pin your dependencies:**
-```bash
-# In pyproject.toml, UV automatically tracks versions
-# This ensures reproducible environments
+### ConjugationVerifier
+
+```python
+from japanese_story_generator import ConjugationVerifier
+
+verifier = ConjugationVerifier()
+result = verifier.verify("私は学校に行きます", ["行く", "学校"])
+
+print(result["conjugations"])  # Words found in vocabulary
+print(result["violations"])    # Words not in vocabulary
 ```
 
-### 4. **Keep API key secure:**
-```bash
-# Always add to .gitignore
-echo "anthropic-api-key.txt" >> .gitignore
+---
 
-# Check it's ignored:
-git status  # Should not show the key file
+## CLI Options
+
+| Option | Description |
+|--------|-------------|
+| `--theme TEXT` | Story theme |
+| `--model MODEL` | OpenRouter model (default: google/gemma-4-26b-a4b-it:free) |
+| `--api-key KEY` | OpenRouter API key |
+| `--output FILE` | Output file (default: story.txt) |
+| `--strict` | Use only provided vocabulary |
+| `--max-length N` | Max story length in characters (default: 500) |
+| `--verify` | Show conjugation verification |
+| `--show-vocab` | Display parsed vocabulary |
+
+---
+
+## Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `OPENROUTER_API_KEY` | Your OpenRouter API key |
+
+---
+
+## Troubleshooting
+
+### "API key required"
+```bash
+export OPENROUTER_API_KEY="sk-or-v1-your-key"
+# Or use --api-key flag
 ```
+
+### "Rate limit exceeded"
+- Wait a few minutes and retry
+- Use a different model: `--model "openai/gpt-4o-mini"`
+- Add your own API key: https://openrouter.ai/settings/integrations
+
+### "Invalid model"
+- Check available models: https://openrouter.ai/models
+- Free models use `:free` suffix
+
+See [TROUBLESHOOTING.md](TROUBLESHOOTING.md) for more issues.
 
 ---
 
 ## Next Steps
 
-After setup, see:
-- **README.md** - Full documentation
-- **VOCABULARY_MODES.md** - Strict vs flexible vocabulary modes
-- **MODEL_REFERENCE.md** - Which model to use
-- **TROUBLESHOOTING.md** - Common issues
-
----
-
-## Quick Reference Card
-
-```bash
-# Parse vocabulary (test)
-uv run python demo.py vocab.txt
-
-# Generate story (Claude API)
-uv run python japanese_story_gen.py vocab.txt
-
-# Generate story (local model)
-uv run --with torch --with transformers --with accelerate \
-  python japanese_story_gen.py vocab.txt --mode local
-
-# With theme
-uv run python japanese_story_gen.py vocab.txt --theme "テーマ"
-
-# Strict vocabulary mode
-uv run python japanese_story_gen.py vocab.txt --strict-vocab
-
-# Show vocabulary list
-uv run python japanese_story_gen.py vocab.txt --show-vocab
-```
-
----
-
-## Summary
-
-**Recommended workflow:**
-1. Install UV (`curl -LsSf https://astral.sh/uv/install.sh | sh`)
-2. Use `uv run` for everything (no setup needed)
-3. Or create a UV project for regular use
-4. Never worry about virtual environments again
-
+- [MODEL_REFERENCE.md](MODEL_REFERENCE.md) - Available models
+- [VOCABULARY_MODES.md](VOCABULARY_MODES.md) - Vocabulary constraint options
+- [CONJUGATION_HANDLING_GUIDE.md](CONJUGATION_HANDLING_GUIDE.md) - Conjugation verification

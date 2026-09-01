@@ -1,112 +1,186 @@
-# Japanese Story Generator from Anki Vocabulary
+# Japanese Story Generator
 
-Generate Japanese stories using only words from your Anki vocabulary deck.
+Generate Japanese stories using only words from your Anki vocabulary deck. Perfect for language learners who want reading practice with controlled vocabulary.
 
 ## Features
 
-- ✅ Generate stories using your known vocabulary
-- ✅ Two modes: Claude API (best quality) or Local LLM (free)
-- ✅ Flexible or strict vocabulary constraints
-- ✅ Token-optimized (50% savings)
-- ✅ Multiple model support (Rinna, Llama, Gemma)
-
-## Quick Start
-
-### 1. Install UV
-```bash
-curl -LsSf https://astral.sh/uv/install.sh | sh
-```
-
-### 2. Clone and Setup
-```bash
-git clone <your-repo-url>
-cd japanese-story-generator
-uv sync  # Installs all dependencies
-```
-
-### 3. Add Your API Key (if using Claude)
-```bash
-echo "sk-ant-your-api-key-here" > anthropic-api-key.txt
-```
-
-### 4. Export Your Anki Deck
-1. Anki → File → Export → Notes in Plain Text (.txt)
-2. ✅ Check "Include HTML and media references"
-3. Save as `My_Japanese_Vocabulary.txt`
-
-### 5. Generate!
-```bash
-# With Claude API
-uv run python japanese_story_gen.py My_Japanese_Vocabulary.txt
-
-# With local model (free)
-uv run python japanese_story_gen.py My_Japanese_Vocabulary.txt --mode local
-```
-
-## Documentation
-
-- **[SETUP_GUIDE.md](docs/SETUP_GUIDE.md)** - Full setup instructions
-- **[MODEL_REFERENCE.md](docs/MODEL_REFERENCE.md)** - Model selection guide
-- **[TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)** - Common issues
-- **[VOCABULARY_MODES.md](docs/VOCABULARY_MODES.md)** - Vocabulary constraints
+- ✅ **Vocabulary-constrained stories** - Generate stories using only words you know
+- ✅ **OpenRouter API** - Access to multiple AI models (free tier available)
+- ✅ **Strict/Flexible modes** - Control vocabulary usage
+- ✅ **Conjugation verification** - Track vocabulary usage in generated stories
+- ✅ **Importable package** - Use in other Python projects
+- ✅ **CLI tool** - Simple command-line interface
 
 ---
 
-## Project Structure
+## Quick Start
+
+### 1. Install
+
+```bash
+git clone <your-repo-url>
+cd japanese-story-generator
+uv sync
+```
+
+### 2. Set API Key
+
+```bash
+export OPENROUTER_API_KEY="sk-or-v1-your-key"
+```
+
+Get a free key at: https://openrouter.ai/keys
+
+### 3. Export Anki Deck
+
+1. Open Anki → File → Export
+2. Format: "Notes in Plain Text (.txt)"
+3. ✅ Check "Include HTML and media references"
+4. Save as `My_Japanese_Vocabulary.txt`
+
+### 4. Generate Stories
+
+```bash
+uv run jp-story My_Japanese_Vocabulary.txt
+```
+
+---
+
+## Usage Examples
+
+### Basic Usage
+```bash
+uv run jp-story vocab.txt
+```
+
+### With Theme
+```bash
+uv run jp-story vocab.txt --theme "at school"
+```
+
+### Strict Vocabulary Mode
+```bash
+uv run jp-story vocab.txt --strict
+```
+
+### Verify Vocabulary Usage
+```bash
+uv run jp-story vocab.txt --verify
+```
+
+### Use Different Model
+```bash
+uv run jp-story vocab.txt --model "openai/gpt-4o-mini"
+```
+
+---
+
+## Python Package Usage
+
+```python
+from japanese_story_generator import StoryGenerator, AnkiVocabParser
+
+# Parse vocabulary
+parser = AnkiVocabParser("My_Japanese_Vocabulary.txt")
+vocab_words = parser.parse()
+
+# Generate story
+generator = StoryGenerator(api_key="your-key")
+story = generator.generate(vocab_words, theme="daily life")
+print(story)
+```
+
+---
+
+## Package Structure
 
 ```
 japanese-story-generator/
-├── pyproject.toml              # ✅ COMMIT - Dependencies
-├── .python-version             # ✅ COMMIT - Python version  
-├── .gitignore                  # ✅ COMMIT - Ignore rules
-│
-├── japanese_story_gen.py       # ✅ COMMIT - Main script
-├── demo.py                     # ✅ COMMIT - Test script
-├── docs/
-│   ├── reports/
-│   │   ├── *.md                # ✅ COMMIT - Experimentation reports
-│   │   └── story*.txt          # ✅ COMMIT - Experiment outputs
-│   └── *.md                    # ✅ COMMIT - Documentations
-│
+├── japanese_story_generator/
+│   ├── __init__.py           # Package exports
+│   ├── anki_parser.py        # AnkiVocabParser class
+│   ├── story_generator.py    # StoryGenerator class
+│   ├── openrouter.py         # OpenRouterClient class
+│   └── verifier.py           # ConjugationVerifier class
 ├── scripts/
-│   └── *.sh                    # ✅ COMMIT - Helper scripts
-│
-├── .venv/                      # ❌ IGNORE - Virtual env
-├── anthropic-api-key.txt       # ❌ IGNORE - SECRET!
-├── My_Japanese_Vocabulary.txt  # ❌ IGNORE - Personal data
-└── story.txt                   # ❌ IGNORE - Output
+│   └── generate.py           # CLI entry point
+├── docs/
+│   ├── SETUP_GUIDE.md        # Installation guide
+│   ├── MODEL_REFERENCE.md    # Available models
+│   ├── TROUBLESHOOTING.md    # Common issues
+│   ├── VOCABULARY_MODES.md   # Strict vs flexible
+│   └── CONJUGATION_HANDLING_GUIDE.md
+├── pyproject.toml
+└── README.md
 ```
+
+---
+
+## CLI Options
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--theme TEXT` | Story theme | None |
+| `--model MODEL` | OpenRouter model | `google/gemma-4-26b-a4b-it:free` |
+| `--api-key KEY` | OpenRouter API key | `OPENROUTER_API_KEY` env var |
+| `--output FILE` | Output file | `story.txt` |
+| `--strict` | Use only provided vocabulary | False |
+| `--max-length N` | Max story length (chars) | 500 |
+| `--verify` | Show conjugation verification | False |
+| `--show-vocab` | Display parsed vocabulary | False |
+
+---
+
+## Available Models
+
+### Free Models
+- `google/gemma-4-26b-a4b-it:free` (default)
+- `google/gemma-2-9b-it:free`
+- `meta-llama/llama-3.1-8b-instruct:free`
+- `qwen/qwen-2-7b-instruct:free`
+
+### Paid Models (Better Quality)
+- `openai/gpt-4o-mini` (~$0.001/1K tokens)
+- `openai/gpt-4o` (~$0.005/1K tokens)
+- `anthropic/claude-3-haiku` (~$0.00025/1K tokens)
+
+See [MODEL_REFERENCE.md](docs/MODEL_REFERENCE.md) for full list.
+
+---
+
+## Documentation
+
+- **[SETUP_GUIDE.md](docs/SETUP_GUIDE.md)** - Installation and usage
+- **[MODEL_REFERENCE.md](docs/MODEL_REFERENCE.md)** - Available models
+- **[TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)** - Common issues
+- **[VOCABULARY_MODES.md](docs/VOCABULARY_MODES.md)** - Vocabulary constraints
+- **[CONJUGATION_HANDLING_GUIDE.md](docs/CONJUGATION_HANDLING_GUIDE.md)** - Conjugation verification
+
+---
+
+## Development
+
+```bash
+# Install dev dependencies
+uv sync
+
+# Run tests
+uv run pytest
+
+# Run CLI
+uv run jp-story --help
+```
+
+---
 
 ## Contributing
 
-### Adding Dependencies:
-```bash
-uv add package-name          # Adds to pyproject.toml
-git add pyproject.toml       # Commit the change
-git commit -m "Add package-name dependency"
-```
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
 
-### Never Commit:
-- API keys
-- Personal vocabulary files
-- Generated stories
-- Virtual environments
-
-## Troubleshooting
-
-See [TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)
-
-Quick fixes:
-```bash
-# Module not found
-uv sync
-
-# API key issues
-cat anthropic-api-key.txt  # Check it exists and has your key
-
-# Use local mode instead
-uv run python japanese_story_gen.py vocab.txt --mode local
-```
+---
 
 ## License
 

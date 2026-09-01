@@ -7,7 +7,9 @@ Generate Japanese stories using only words from your Anki vocabulary deck. Perfe
 - ✅ **Vocabulary-constrained stories** - Generate stories using only words you know
 - ✅ **OpenRouter API** - Access to multiple AI models (free tier available)
 - ✅ **Strict/Flexible modes** - Control vocabulary usage
-- ✅ **Conjugation verification** - Track vocabulary usage in generated stories
+- ✅ **Conjugation verification** - Track vocabulary usage with multiple matching strategies
+- ✅ **Compound word detection** - Handles compound nouns like 鍋料理
+- ✅ **Kanji variant handling** - Matches 暖かい/温かい, 混ぜる/交ぜる correctly
 - ✅ **Importable package** - Use in other Python projects
 - ✅ **CLI tool** - Simple command-line interface
 
@@ -154,7 +156,32 @@ See [MODEL_REFERENCE.md](docs/MODEL_REFERENCE.md) for full list.
 - **[MODEL_REFERENCE.md](docs/MODEL_REFERENCE.md)** - Available models
 - **[TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)** - Common issues
 - **[VOCABULARY_MODES.md](docs/VOCABULARY_MODES.md)** - Vocabulary constraints
-- **[CONJUGATION_HANDLING_GUIDE.md](docs/CONJUGATION_HANDLING_GUIDE.md)** - Conjugation verification
+- **[CONJUGATION_HANDLING_GUIDE.md](docs/CONJUGATION_HANDLING_GUIDE.md)** - Conjugation verification & vocabulary matching
+
+---
+
+## Violation-Based Learning
+
+This package supports a violation-based learning approach where vocabulary violations become curriculum:
+
+```python
+from japanese_story_generator import StoryGenerator, ConjugationVerifier
+
+# Generate story with current vocabulary
+story = generator.generate(current_vocab, strict=True)
+
+# Find violations (words not in vocabulary)
+result = verifier.verify(story, current_vocab)
+violations = result["violations"]
+
+# Grade violations by difficulty (in learn-jp)
+for v in violations:
+    grade = grade_violation(v, current_level)
+    if grade == "introduce_now":
+        add_to_anki(v["surface"])
+```
+
+See [learn-jp/docs/VIOLATION_BASED_LEARNING.md](/home/arif/Projects/learn-jp/docs/VIOLATION_BASED_LEARNING.md) for the full approach.
 
 ---
 

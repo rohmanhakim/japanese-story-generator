@@ -1,0 +1,172 @@
+[
+  {
+    "vocab_size": 10,
+    "story_length": 53,
+    "matched_count": 10,
+    "compound_count": 2,
+    "violation_count": 3,
+    "violations": [
+      {
+        "surface": "日",
+        "suspected_base": "日",
+        "pos": "名詞",
+        "reading": "ひ"
+      },
+      {
+        "surface": "痛い",
+        "suspected_base": "痛い",
+        "pos": "形容詞",
+        "reading": "いたい"
+      },
+      {
+        "surface": "良い",
+        "suspected_base": "良い",
+        "pos": "形容詞",
+        "reading": "よい"
+      }
+    ],
+    "story_preview": "寒い日は、体が寒いです。喉が痛いです。薬局の塩が薄いです。鍋料理を混ぜます。暖かい鍋料理が、体に良いです。"
+  },
+  {
+    "vocab_size": 20,
+    "story_length": 98,
+    "matched_count": 24,
+    "compound_count": 2,
+    "violation_count": 4,
+    "violations": [
+      {
+        "surface": "日",
+        "suspected_base": "日",
+        "pos": "名詞",
+        "reading": "ひ"
+      },
+      {
+        "surface": "食べる",
+        "suspected_base": "食べる",
+        "pos": "動詞",
+        "reading": "たべる"
+      },
+      {
+        "surface": "食べる",
+        "suspected_base": "食べる",
+        "pos": "動詞",
+        "reading": "たべる"
+      },
+      {
+        "surface": "座る",
+        "suspected_base": "座る",
+        "pos": "動詞",
+        "reading": "すわる"
+      }
+    ],
+    "story_preview": "寒い日が降る。\n体は寒い。\n薬局で薬を買う。\n机に薬を置く。\n家族は鍋料理を食べる。\n塩を混ぜる。\n暖かい鍋料理は、喉に暖かい。\n寿司を食べる。\n椅子に座る。\n机に帽子を置く。\n家族の体は暖かい。"
+  },
+  {
+    "vocab_size": 30,
+    "story_length": 108,
+    "matched_count": 25,
+    "compound_count": 2,
+    "violation_count": 7,
+    "violations": [
+      {
+        "surface": "雪",
+        "suspected_base": "雪",
+        "pos": "名詞",
+        "reading": "ゆき"
+      },
+      {
+        "surface": "痛い",
+        "suspected_base": "痛い",
+        "pos": "形容詞",
+        "reading": "いたい"
+      },
+      {
+        "surface": "怖い",
+        "suspected_base": "怖い",
+        "pos": "形容詞",
+        "reading": "こわい"
+      },
+      {
+        "surface": "家",
+        "suspected_base": "家",
+        "pos": "名詞",
+        "reading": "いえ"
+      },
+      {
+        "surface": "食べる",
+        "suspected_base": "食べる",
+        "pos": "動詞",
+        "reading": "たべる"
+      },
+      {
+        "surface": "後",
+        "suspected_base": "後",
+        "pos": "名詞",
+        "reading": "あと"
+      },
+      {
+        "surface": "座っ",
+        "suspected_base": "座る",
+        "pos": "動詞",
+        "reading": "すわっ"
+      }
+    ],
+    "story_preview": "夜は寒い。雪が降る。\n駅の机に、黒い帽子を置く。\n仕事は寂しい。\n体は寒い。喉も痛い。\n病気が怖い。\n薬局で薬を買う。\n家で家族と鍋料理を食べる。\n塩を混ぜる。\n鍋料理は暖かい。\n簡単な仕事の後に、椅子に座って寝る。"
+  },
+  {
+    "vocab_size": 50,
+    "story_length": 113,
+    "matched_count": 28,
+    "compound_count": 2,
+    "violation_count": 4,
+    "violations": [
+      {
+        "surface": "雪",
+        "suspected_base": "雪",
+        "pos": "名詞",
+        "reading": "ゆき"
+      },
+      {
+        "surface": "痛い",
+        "suspected_base": "痛い",
+        "pos": "形容詞",
+        "reading": "いたい"
+      },
+      {
+        "surface": "家",
+        "suspected_base": "家",
+        "pos": "名詞",
+        "reading": "いえ"
+      },
+      {
+        "surface": "作る",
+        "suspected_base": "作る",
+        "pos": "動詞",
+        "reading": "つくる"
+      }
+    ],
+    "story_preview": "昨日は寒い夜でした。外は雪が降る。\n今日、彼は病気です。喉が痛い。\n彼は薬局で薬を買いました。\n彼は家で、机に薬を置きました。\n玉ねぎを切る。塩を混ぜる。\n簡単な鍋料理を作る。\n暖かい鍋料理を食べる。\n体は暖かい。\n彼は寝る。"
+  },
+  {
+    "vocab_size": 74,
+    "story_length": 147,
+    "matched_count": 36,
+    "compound_count": 1,
+    "violation_count": 2,
+    "violations": [
+      {
+        "surface": "行き",
+        "suspected_base": "行く",
+        "pos": "動詞",
+        "reading": "いき"
+      },
+      {
+        "surface": "座り",
+        "suspected_base": "座る",
+        "pos": "動詞",
+        "reading": "すわり"
+      }
+    ],
+    "story_preview": "昨日の夜、雨が降りました。外は寒かったです。\n今日は、彼は新しい帽子を買い、駅へ行きました。\n午後は、友達と家で鍋料理を食べました。\n玉ねぎと、野菜と、魚を混ぜる。\nとても楽しいです。\n夜、彼は薬局で薬を買いました。\n病気は、寂しいです。\n彼は机に薬を置き、椅子に座りました。\n今、彼は寝ます。"
+  }
+]

@@ -29,8 +29,46 @@ from japanese_story_generator import ConjugationVerifier
 verifier = ConjugationVerifier()
 result = verifier.verify(story_text, vocabulary_list)
 
-print(result["conjugations"])  # Words found
-print(result["violations"])    # Words not in vocabulary
+print(result["conjugations"])  # Words matched from vocabulary
+print(result["violations"])    # Words NOT in vocabulary
+print(result["compounds"])     # Compound words detected
+```
+
+### Return Format
+
+```python
+{
+    "conjugations": [
+        {
+            "surface": "暖かい",        # Actual word in text
+            "base": "温かい",            # MeCab dictionary form
+            "matched_word": "暖かい",     # Word from your vocabulary
+            "match_type": "surface",      # How it matched
+            "conjugation_type": "形容詞",
+            "conjugation_form": "終止形-一般",
+            "pos": "形容詞"
+        },
+        ...
+    ],
+    "violations": [
+        {
+            "surface": "痛い",           # Word not in vocabulary
+            "suspected_base": "痛い",
+            "pos": "形容詞",
+            "reading": "いたい"           # For JLPT level lookup
+        },
+        ...
+    ],
+    "compounds": [
+        {
+            "surface": "鍋料理",         # Compound word found
+            "tokens": ["鍋", "料理"],     # Individual tokens
+            "pos": "名詞 (compound)",
+            "indices": [15, 16]            # Token positions
+        },
+        ...
+    ]
+}
 ```
 
 ### CLI Usage
@@ -80,11 +118,40 @@ Identifies conjugation type and form:
 
 ### 3. Vocabulary Matching
 
-Compares base forms against your vocabulary list:
+Uses multiple matching strategies for accurate detection:
+
+| Match Type | Description | Example |
+|------------|-------------|---------|
+| lemma | Dictionary form from MeCab | 食べる → 食べる |
+| surface | Actual surface form | 暖かい → 暖かい |
+| orthBase | Base orthographic form | 混ぜる → 混ぜる |
+| reading | Kana/pronunciation match | 鍋料理 → なべりょうり |
+| compound | Consecutive nouns | 鍋 + 料理 → 鍋料理 |
+
+**Why multiple methods?**
+
+MeCab normalizes kanji variants to standard dictionary forms:
+- User writes: `暖かい` → MeCab lemma: `温かい`
+- User writes: `混ぜる` → MeCab lemma: `交ぜる`
+
+The verifier checks surface forms and readings to handle these cases.
+
+```python
+# Matching logic (simplified)
+if lemma in vocab:        # Standard match
+    matched = True
+elif surface in vocab:    # Kanji variant match
+    matched = True
+elif reading in readings:  # Reading-based match
+    matched = True
+```
+
+### 4. Compound Word Detection
+
+Detects when consecutive nouns form a compound word in vocabulary:
 
 ```
-食べる (in vocabulary) ✓
-部屋 (not in vocabulary) ✗
+鍋 + 料理 → 鍋料理 (found in vocabulary) ✓
 ```
 
 ---
@@ -193,14 +260,45 @@ vocab = ["昨日", "学校", "友達", "日本語", "勉強する"]
 ```python
 {
     "conjugations": [
-        {"surface": "勉強しました", "base": "勉強する", "form": "連用形+ます形"},
+        {
+            "surface": "昨日",
+            "matched_word": "昨日",
+            "match_type": "lemma",
+            "pos": "名詞"
+        },
+        {
+            "surface": "学校",
+            "matched_word": "学校",
+            "match_type": "lemma",
+            "pos": "名詞"
+        },
+        {
+            "surface": "友達",
+            "matched_word": "友達",
+            "match_type": "lemma",
+            "pos": "名詞"
+        },
+        {
+            "surface": "勉強しました",
+            "matched_word": "勉強する",
+            "match_type": "lemma",
+            "pos": "名詞"
+        }
     ],
     "violations": [
-        {"surface": "私", "pos": "代名詞"},
-        {"surface": "日本語", "pos": "名詞"},
-    ]
+        {"surface": "私", "suspected_base": "私", "pos": "代名詞", "reading": "わたし"},
+        {"surface": "日本語", "suspected_base": "日本語", "pos": "名詞", "reading": "にほんご"}
+    ],
+    "compounds": []
 }
 ```
+
+### Key Observations
+
+1. **Match types vary**: Some match by `lemma`, others by `surface` or `reading`
+2. **Conjugated forms detected**: `勉強しました` correctly matched to `勉強する`
+3. **Violations include readings**: `reading` field enables JLPT level lookup
+4. **Private pronouns**: `私` is a violation (not in vocabulary)
 
 ---
 
